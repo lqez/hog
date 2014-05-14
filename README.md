@@ -1,4 +1,4 @@
-thog
-====
+hog
+===
 
-Testnig HTTP request using green thread
+Sending multiple HTTP requests On Green thread. (yes, like a hog)
