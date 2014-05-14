@@ -9,6 +9,17 @@ requirements = [
     'requests',
 ]
 
+classifiers = [
+    'Topic :: Terminals',
+    'Topic :: Utilities',
+    'Environment :: Console',
+    'Development Status :: 3 - Alpha',
+    'Intended Audience :: Developers',
+    'Intended Audience :: System Administrators',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 2.7',
+    'License :: OSI Approved :: MIT License',
+]
 
 setup(
     name='hog',
@@ -19,7 +30,8 @@ setup(
     maintainer='Park Hyunwoo',
     maintainer_email='ez.amiryo' '@' 'gmail.com',
     url='http://github.com/lqez/hog',
-    description='Testing multiple HTTP request on green thread',
+    description='Sending multiple `HTTP` requests `ON` `GREEN` thread',
+    classifiers=classifiers,
     install_requires=requirements,
     entry_points={
         'console_scripts': [

@@ -44,7 +44,7 @@ def parse_parameters(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Testing multiple HTTP request on green thread'
+        description='Sending multiple `HTTP` requests `ON` `GREEN` thread'
     )
 
     parser.add_argument('-u', dest='url', required=True,
