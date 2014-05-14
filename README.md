@@ -27,7 +27,7 @@ USAGE
 SAMPLE RESULT
 -------------
 
-    $ hog -c 1000 -n 10000 -m POST -t 1 -p foo=bar http://somewwhere.in.universe/
+    $ hog -c 1000 -n 10000 -m POST -t 1 -p foo=bar http://somewhere.in.universe/
     -------------------------------------------------------------------------------
     Run with 1000 threads, 10000 requests, timeout in 1.0 second(s).
     -------------------------------------------------------------------------------
