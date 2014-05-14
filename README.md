@@ -24,6 +24,23 @@ USAGE
       -m {GET,POST}         Which method to be used (GET,POST)
 
 
+SAMPLE RESULT
+-------------
+
+    $ hog -c 1000 -n 10000 -m POST -t 1 -p foo=bar http://somewwhere.in.universe/
+    -------------------------------------------------------------------------------
+    Run with 1000 threads, 10000 requests, timeout in 1.0 second(s).
+    -------------------------------------------------------------------------------
+    STATUS	COUNT	AVERAGE
+    -------------------------------------------------------------------------------
+    200	    2035	2171.37ms
+    502	    1636	1597.74ms
+    -------------------------------------------------------------------------------
+    >>> 6233 request(s) timed out
+    >>> 96 request(s) just failed
+    total time elapsed 28.5283s
+
+
 INSTALL
 -------
 
