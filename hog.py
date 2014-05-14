@@ -53,7 +53,7 @@ def main():
                         help='Number of threads')
     parser.add_argument('-n', dest='requests', default=100,
                         help='Number of requests')
-    parser.add_argument('-t', dest='timeout', default=5,
+    parser.add_argument('-t', dest='timeout', type=float, default=5,
                         help='Timeout limit in seconds')
     parser.add_argument('-p', dest='params', nargs='*',
                         help='Parameters on POST request(in key=value format)')
