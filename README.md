@@ -1,12 +1,16 @@
 hog
 ===
 
-Sending multiple `HTTP` requests `ON` `GREEN` thread. (yes, like a hog)
+Sending multiple HTTP requests ON GREEN thread. 
+
+
+USAGE
+-----
 
     usage: hog.py [-h] -u URL [-c CONCURRENCY] [-n REQUESTS] [-t TIMEOUT]
                   [-p [PARAMS [PARAMS ...]]] [-f PARAMFILE] [-m {GET,POST}]
 
-    Testing multiple HTTP request on green thread
+    Sending multiple `HTTP` requests `ON` `GREEN` thread
 
     optional arguments:
       -h, --help            show this help message and exit
