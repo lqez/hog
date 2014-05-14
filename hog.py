@@ -47,7 +47,7 @@ def main():
         description='Sending multiple `HTTP` requests `ON` `GREEN` thread'
     )
 
-    parser.add_argument('-u', dest='url', required=True,
+    parser.add_argument(dest='url',
                         help='URL to be tested')
     parser.add_argument('-c', dest='concurrency', default=10,
                         help='Number of threads')
