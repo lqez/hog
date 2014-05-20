@@ -13,18 +13,24 @@ PARAM_PATTERN = r'(?P<key>[^=]+)=(?P<value>.+)'
 PERCENTAGE = [50, 66, 75, 80, 90, 95, 98, 99, 100, ]
 
 
-def fetch(request_id, args, params):
+def fetch(request_id, args, params, status_count, status_elapsed):
+    status = 200
+    elapsed = 0
     try:
         if args.method == 'GET':
             r = requests.get(args.url, params=params, timeout=args.timeout)
         else:
             r = requests.post(args.url, data=params, timeout=args.timeout)
-    except requests.exceptions.ConnectionError:
-        return (-2, 0)
-    except requests.exceptions.Timeout:
-        return (-1, 0)
 
-    return (r.status_code, r.elapsed.total_seconds())
+        status = r.status_code
+        elapsed = r.elapsed.total_seconds()
+    except requests.exceptions.ConnectionError:
+        status = -2
+    except requests.exceptions.Timeout:
+        status = -1
+
+    status_count[status] += 1
+    status_elapsed[status].append(elapsed)
 
 
 def parse_parameters(args):
@@ -54,12 +60,14 @@ def main():
                         help='Number of threads')
     parser.add_argument('-n', dest='requests', default=100,
                         help='Number of requests')
+    parser.add_argument('-l', dest='limit', type=float, default=0,
+                        help='Limit request throughput per second (0=unlimited)')
     parser.add_argument('-t', dest='timeout', type=float, default=5,
                         help='Timeout limit in seconds')
     parser.add_argument('-p', dest='params', nargs='*',
-                        help='Parameters on POST request(in key=value format)')
+                        help='Parameters on POST request (in key=value format)')
     parser.add_argument('-f', dest='paramfile',
-                        help='File contains parameters(multiple key=value)')
+                        help='File contains parameters (multiple key=value)')
     parser.add_argument('-m', dest='method', default='GET',
                         choices=['GET', 'POST'],
                         help='Which method to be used (GET,POST)')
@@ -69,8 +77,10 @@ def main():
 
     # Running information
     print(HR)
-    print('Run with {} threads, {} requests, timeout in {} second(s).'.format(
+    print('Hog is running with {} threads, {} requests and timeout in {} second(s).'.format(
         args.concurrency, args.requests, args.timeout))
+    if args.limit != 0:
+        print('Limit throughput: {} request(s) per second.'.format(args.limit))
     print(HR)
 
     # Let's begin!
@@ -80,11 +90,17 @@ def main():
 
     start = time.time()
 
-    for status, elapsed in pool.imap(lambda x: fetch(x, args, params),
-                                     xrange(int(args.requests))):
-        status_count[status] += 1
-        status_elapsed[status].append(elapsed)
+    if args.limit == 0:
+        for _ in pool.imap(lambda x: fetch(x, args, params, status_count, status_elapsed),
+                           xrange(int(args.requests))):
+            pass
+    else:
+        interval = 1.0 / args.limit
+        for i in xrange(int(args.requests)):
+            pool.spawn_n(fetch, i, args, params, status_count, status_elapsed)
+            time.sleep(interval)
 
+    pool.waitall()
     elapsed = time.time() - start
 
     # Print out results

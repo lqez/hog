@@ -17,10 +17,11 @@ USAGE
       -u URL                URL to be tested
       -c CONCURRENCY        Number of threads
       -n REQUESTS           Number of requests
+      -l LIMIT              Limit request throughput per second (0=unlimited)
       -t TIMEOUT            Timeout limit in seconds
       -p [PARAMS [PARAMS ...]]
-                            Parameters on POST request(in key=value format)
-      -f PARAMFILE          File contains parameters(multiple key=value)
+                            Parameters on POST request (in key=value format)
+      -f PARAMFILE          File contains parameters (multiple key=value)
       -m {GET,POST}         Which method to be used (GET,POST)
 
 
