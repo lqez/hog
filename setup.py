@@ -23,7 +23,7 @@ classifiers = [
 
 setup(
     name='hog',
-    version='0.1.0',
+    version='0.1.1',
     py_modules=['hog'],
     author='Park Hyunwoo',
     author_email='ez.amiryo' '@' 'gmail.com',

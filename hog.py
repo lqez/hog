@@ -10,6 +10,7 @@ from collections import defaultdict
 
 HR = '-' * 79
 PARAM_PATTERN = r'(?P<key>[^=]+)=(?P<value>.+)'
+PERCENTAGE = [50, 66, 75, 80, 90, 95, 98, 99, 100, ]
 
 
 def fetch(request_id, args, params):
@@ -75,14 +76,14 @@ def main():
     # Let's begin!
     pool = eventlet.GreenPool(int(args.concurrency))
     status_count = defaultdict(int)
-    status_elapsed = defaultdict(int)
+    status_elapsed = defaultdict(list)
 
     start = time.time()
 
     for status, elapsed in pool.imap(lambda x: fetch(x, args, params),
                                      xrange(int(args.requests))):
         status_count[status] += 1
-        status_elapsed[status] += elapsed
+        status_elapsed[status].append(elapsed)
 
     elapsed = time.time() - start
 
@@ -90,10 +91,22 @@ def main():
     print("STATUS\tCOUNT\tAVERAGE")
     print(HR)
     for status, count in status_count.iteritems():
-        if status > 0:
-            print("{}\t{}\t{:.2f}ms".format(
-                status, count, status_elapsed[status] * 1000 / count
-            ))
+        if status <= 0:
+            continue
+
+        print("{:>6}{:>7}{:>10.2f}ms".format(
+            status, count, sum(status_elapsed[status]) * 1000 / count
+        ))
+
+    # Print distribution
+    if status_count.get(200):
+        print(HR)
+        print("Response time distribution of succeed requests")
+
+        elapsed_sorted = sorted(status_elapsed[200])
+        for p in PERCENTAGE:
+            c = (len(status_elapsed[200]) * p / 100) - 1
+            print("        {:>4}%{:>10.2f}ms".format(p, elapsed_sorted[c] * 1000))
 
     # Print errors and summary
     print(HR)
