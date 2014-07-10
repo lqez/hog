@@ -1,7 +1,7 @@
 hog
 ===
 
-Sending multiple HTTP requests ON GREEN thread. 
+Sending multiple HTTP requests ON GREEN thread like an [hog](http://en.wikipedia.org/wiki/Giant_forest_hog).
 
 
 USAGE
@@ -28,7 +28,7 @@ USAGE
 SAMPLE RESULT
 -------------
 
-    $ hog -c 250 -n 1000 -t 5 -p foo=bar http://somewhere.in.universe/
+    $ hog -c 250 -n 1000 -t 5 http://somewhere.in.universe/
     -------------------------------------------------------------------------------
     Hog is running with 250 threads, 1000 requests and timeout in 5 second(s).
     -------------------------------------------------------------------------------
