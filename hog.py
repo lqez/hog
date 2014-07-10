@@ -2,9 +2,10 @@ import eventlet
 eventlet.monkey_patch()
 
 import argparse
-import time
 import re
 import requests
+import sys
+import time
 from collections import defaultdict
 
 
@@ -49,7 +50,7 @@ def parse_parameters(args):
     return params
 
 
-def main():
+def hog_parser():
     parser = argparse.ArgumentParser(
         description='Sending multiple `HTTP` requests `ON` `GREEN` thread'
     )
@@ -71,7 +72,11 @@ def main():
     parser.add_argument('-m', dest='method', default='GET',
                         choices=['GET', 'POST'],
                         help='Which method to be used (GET,POST)')
+    return parser
 
+
+def main():
+    parser = hog_parser()
     args = parser.parse_args()
     params = parse_parameters(args)
 
@@ -93,7 +98,12 @@ def main():
     if args.limit == 0:
         for _ in pool.imap(lambda x: fetch(x, args, params, status_count, status_elapsed),
                            xrange(int(args.requests))):
-            pass
+            percent = sum(status_count.itervalues()) * 100 / int(args.requests)
+            sys.stdout.write("  [{:<70}] {:>3}%\r".format(
+                '=' * int(0.7 * percent),
+                percent
+            ))
+            sys.stdout.flush()
     else:
         interval = 1.0 / args.limit
         for i in xrange(int(args.requests)):
@@ -101,9 +111,11 @@ def main():
             time.sleep(interval)
 
     pool.waitall()
+    sys.stdout.write("\n")
     elapsed = time.time() - start
 
     # Print out results
+    print(HR)
     print("STATUS\tCOUNT\tAVERAGE")
     print(HR)
     for status, count in status_count.iteritems():

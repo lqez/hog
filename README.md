@@ -28,18 +28,31 @@ USAGE
 SAMPLE RESULT
 -------------
 
-    $ hog -c 1000 -n 10000 -m POST -t 1 -p foo=bar http://somewhere.in.universe/
+    $ hog -c 250 -n 1000 -t 5 -p foo=bar http://somewhere.in.universe/
     -------------------------------------------------------------------------------
-    Run with 1000 threads, 10000 requests, timeout in 1.0 second(s).
+    Hog is running with 250 threads, 1000 requests and timeout in 5 second(s).
     -------------------------------------------------------------------------------
-    STATUS	COUNT	AVERAGE
+      [======================================================================] 100%
     -------------------------------------------------------------------------------
-    200	    2035	2171.37ms
-    502	    1636	1597.74ms
+    STATUS  COUNT   AVERAGE
     -------------------------------------------------------------------------------
-    >>> 6233 request(s) timed out
-    >>> 96 request(s) just failed
-    total time elapsed 28.5283s
+       200    360   2161.32ms
+       502    427    450.02ms
+       503    113    632.74ms
+    -------------------------------------------------------------------------------
+    Response time distribution of succeed requests
+              50%   2214.45ms
+              66%   2337.06ms
+              75%   2420.22ms
+              80%   2489.50ms
+              90%   2635.47ms
+              95%   2709.51ms
+              98%   2753.71ms
+              99%   2785.34ms
+             100%   2839.30ms
+    -------------------------------------------------------------------------------
+    >>> 100 request(s) just failed
+    total time elapsed 9.9918s
 
 
 INSTALL
