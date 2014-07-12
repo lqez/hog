@@ -4,25 +4,35 @@ hog
 Sending multiple HTTP requests ON GREEN thread like an [hog](http://en.wikipedia.org/wiki/Giant_forest_hog).
 
 
-USAGE
------
+USAGE as script
+---------------
 
     usage: hog.py [-h] -u URL [-c CONCURRENCY] [-n REQUESTS] [-t TIMEOUT]
                   [-p [PARAMS [PARAMS ...]]] [-f PARAMFILE] [-m {GET,POST}]
 
     Sending multiple `HTTP` requests `ON` `GREEN` thread
 
+    positional arguments:
+      url                   URL to be tested
+
     optional arguments:
       -h, --help            show this help message and exit
-      -u URL                URL to be tested
       -c CONCURRENCY        Number of threads
       -n REQUESTS           Number of requests
-      -l LIMIT              Limit request throughput per second (0=unlimited)
+      -l LIMIT              Limit requests per second (0=unlimited)
       -t TIMEOUT            Timeout limit in seconds
       -p [PARAMS [PARAMS ...]]
-                            Parameters on POST request (in key=value format)
+                            Parameters (in key=value format)
       -f PARAMFILE          File contains parameters (multiple key=value)
       -m {GET,POST}         Which method to be used (GET,POST)
+
+
+USAGE as module
+---------------
+
+    import hog
+
+    hog.run('http://somewhere.in.universe/')
 
 
 SAMPLE RESULT
