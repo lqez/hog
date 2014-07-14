@@ -4,8 +4,8 @@ hog
 Sending multiple HTTP requests ON GREEN thread like an [hog](http://en.wikipedia.org/wiki/Giant_forest_hog).
 
 
-USAGE as script
----------------
+Using Hog as console script
+---------------------------
 
     usage: hog.py [-h] -u URL [-c CONCURRENCY] [-n REQUESTS] [-t TIMEOUT]
                   [-p [PARAMS [PARAMS ...]]] [-f PARAMFILE] [-m {GET,POST}]
@@ -27,15 +27,15 @@ USAGE as script
       -m {GET,POST}         Which method to be used (GET,POST)
 
 
-USAGE as module
----------------
+Using Hog via module
+--------------------
 
     import hog
 
     hog.run('http://somewhere.in.universe/')
 
 
-SAMPLE RESULT
+Sample result
 -------------
 
     $ hog -c 250 -n 1000 -t 5 http://somewhere.in.universe/
@@ -65,7 +65,7 @@ SAMPLE RESULT
     total time elapsed 9.9918s
 
 
-INSTALL
+Install
 -------
 
     pip install hog
