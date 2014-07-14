@@ -1,4 +1,4 @@
-hog
+Hog
 ===
 
 Sending multiple HTTP requests ON GREEN thread like an [hog](http://en.wikipedia.org/wiki/Giant_forest_hog).
@@ -32,7 +32,11 @@ Using Hog via module
 
     import hog
 
-    hog.run('http://somewhere.in.universe/')
+    r = hog.run("http://somewhere.in.universe/")
+
+    if r.ok:
+        print("Looking good.")
+
 
 
 Sample result
