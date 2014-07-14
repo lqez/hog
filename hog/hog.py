@@ -1,3 +1,15 @@
+# -*- coding: utf-8 -*-
+"""
+hog
+~~~
+
+Sending multiple HTTP requests ON GREEN thread.
+
+:copyright: (c) 2014 by Park Hyunwoo.
+:license: MIT, see LICENSE for more details.
+
+"""
+
 import eventlet
 eventlet.monkey_patch()
 
