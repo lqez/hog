@@ -10,6 +10,8 @@ Sending multiple HTTP requests ON GREEN thread.
 
 """
 
+from __future__ import print_function
+
 import eventlet
 eventlet.monkey_patch()
 
@@ -21,8 +23,25 @@ import time
 from collections import defaultdict
 
 
+class HogResult(object):
+    def __init__(self):
+        super(HogResult, self).__init__()
+        self.elapsed = 0
+        self.requests = 0
+        self.responses = defaultdict(list)
+        self.succeed_responses = []
+
+    @property
+    def ok(self):
+        return len(self.succeed_responses) == self.requests
+
+
 class Hog(object):
+    STATUS_TIMEOUT = -1
+    STATUS_FAILED = -2
+
     def __init__(self, callback=None):
+        super(Hog, self).__init__()
         self.callback = callback
 
     def fetch(self):
@@ -40,16 +59,18 @@ class Hog(object):
 
             status = r.status_code
             elapsed = r.elapsed.total_seconds()
-        except requests.exceptions.ConnectionError:
-            status = -2
-        except requests.exceptions.Timeout:
-            status = -1
 
-        self.status_count[status] += 1
-        self.status_elapsed[status].append(elapsed)
+            if 200 <= status < 400:
+                self.result.succeed_responses.append(elapsed)
+        except requests.exceptions.ConnectionError:
+            status = self.STATUS_FAILED
+        except requests.exceptions.Timeout:
+            status = self.STATUS_TIMEOUT
+
+        self.result.responses[status].append(elapsed)
 
         if self.callback:
-            self.callback(self.status_count, self.requests)
+            self.callback(self.result)
 
     def run(self, url, params=None, method='GET',
             timeout=5, concurrency=10, requests=100, limit=0):
@@ -57,11 +78,15 @@ class Hog(object):
         self.params = params
         self.method = method
         self.timeout = timeout
-        self.requests = requests
-        self.status_count = defaultdict(int)
-        self.status_elapsed = defaultdict(list)
+
+        self.result = HogResult()
+        self.result.requests = requests
+
+        if self.callback:
+            self.callback(self.result)
 
         pool = eventlet.GreenPool(int(concurrency))
+        start = time.time()
 
         if limit == 0:
             for _ in pool.imap(lambda x: self.fetch(),
@@ -74,8 +99,9 @@ class Hog(object):
                 time.sleep(interval)
 
         pool.waitall()
+        self.result.elapsed = time.time() - start
 
-        return (self.status_count, self.status_elapsed)
+        return self.result
 
 
 def run(url, params=None, method='GET',
@@ -125,8 +151,9 @@ def get_parser():
     return parser
 
 
-def callback(status_count, requests):
-    percent = sum(status_count.itervalues()) * 100 / requests
+def callback(result):
+    percent = sum([len(_) for _
+                   in result.responses.itervalues()]) * 100 / result.requests
     sys.stdout.write("  [{:<70}] {:>3}%\r".format(
         '=' * int(0.7 * percent),
         percent
@@ -151,11 +178,9 @@ def main():
     print(HR)
 
     # Let's begin!
-    start = time.time()
-    hog = Hog(callback)
-    hog.run(args.url, params, args.method,
-            int(args.timeout), int(args.concurrency),
-            int(args.requests), int(args.limit))
+    result = Hog(callback).run(args.url, params, args.method,
+                               int(args.timeout), int(args.concurrency),
+                               int(args.requests), int(args.limit))
     sys.stdout.write("\n")
 
     # Print out results
@@ -163,35 +188,35 @@ def main():
     print("STATUS\tCOUNT\tAVERAGE")
     print(HR)
 
-    for status, count in hog.status_count.iteritems():
+    for status, elapsed_times in result.responses.iteritems():
         if status <= 0:
             continue
 
+        count = len(elapsed_times)
         print("{:>6}{:>7}{:>10.2f}ms".format(
-            status, count, sum(hog.status_elapsed[status]) * 1000 / count
+            status, count, sum(elapsed_times) * 1000 / count
         ))
 
     # Print distribution
-    if hog.status_count.get(200):
+    if result.succeed_responses:
         print(HR)
         print("Response time distribution of succeed requests")
 
-        elapsed_sorted = sorted(hog.status_elapsed[200])
+        elapsed_sorted = sorted(result.succeed_responses)
         for p in PERCENTAGE:
-            c = (len(hog.status_elapsed[200]) * p / 100) - 1
+            c = (len(elapsed_sorted) * p / 100) - 1
             print("{:>12}%{:>10.2f}ms".format(p, elapsed_sorted[c] * 1000))
 
     # Print errors and summary
     print(HR)
-    elapsed = time.time() - start
 
-    if hog.status_count.get(-1):
-        print(">>> {} request(s) timed out".format(hog.status_count.get(-1)))
+    if result.responses.get(-1):
+        print(">>> {} request(s) timed out".format(len(result.responses[-1])))
 
-    if hog.status_count.get(-2):
-        print(">>> {} request(s) just failed".format(hog.status_count.get(-2)))
+    if result.responses.get(-2):
+        print(">>> {} request(s) failed".format(len(result.responses[-2])))
 
-    print("total time elapsed {:.4f}s".format(elapsed))
+    print("total time elapsed {:.4f}s".format(result.elapsed))
 
 
 if __name__ == '__main__':
