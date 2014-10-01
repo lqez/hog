@@ -1,10 +1,16 @@
 #!/usr/bin/env python
+import re
+
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
 
-from hog import VERSION, PROJECT
+
+with open('hog/__init__.py') as f:
+    data = re.search(r'\(\s*(\d*).\s*(\d*).\s*(\d)*\)', f.read())
+    version = ".".join([data.group(1), data.group(2), data.group(3)])
+assert version
 
 packages = [
     'hog',
@@ -28,8 +34,8 @@ classifiers = [
 ]
 
 setup(
-    name=PROJECT,
-    version=VERSION,
+    name='hog',
+    version=version,
     packages=packages,
     zip_safe=False,
 
