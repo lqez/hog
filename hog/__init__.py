@@ -7,4 +7,4 @@ __project__ = PROJECT = 'hog'
 __author__ = AUTHOR = "Park Hyunwoo <ez.amiryo@gmail.com>"
 
 
-from .hog import run
+from .hog import print_result, run

@@ -23,6 +23,10 @@ import time
 from collections import defaultdict
 
 
+HR = '-' * 79
+PERCENTAGE = [50, 66, 75, 80, 90, 95, 98, 99, 100, ]
+
+
 class HogResult(object):
     def __init__(self):
         super(HogResult, self).__init__()
@@ -161,28 +165,7 @@ def callback(result):
     sys.stdout.flush()
 
 
-def main():
-    HR = '-' * 79
-    PERCENTAGE = [50, 66, 75, 80, 90, 95, 98, 99, 100, ]
-
-    args = get_parser().parse_args()
-    params = parse_parameters(args)
-
-    # Running information
-    print(HR)
-    print("Hog is running with {} threads, ".format(args.concurrency) +
-          "{} requests ".format(args.requests) +
-          "and timeout in {} second(s).".format(args.timeout))
-    if args.limit != 0:
-        print(">>> Limit: {} request(s) per second.".format(args.limit))
-    print(HR)
-
-    # Let's begin!
-    result = Hog(callback).run(args.url, params, args.method,
-                               int(args.timeout), int(args.concurrency),
-                               int(args.requests), int(args.limit))
-    sys.stdout.write("\n")
-
+def print_result(result):
     # Print out results
     print(HR)
     print("STATUS\tCOUNT\tAVERAGE")
@@ -217,6 +200,28 @@ def main():
         print(">>> {} request(s) failed".format(len(result.responses[-2])))
 
     print("total time elapsed {:.4f}s".format(result.elapsed))
+
+
+def main():
+    args = get_parser().parse_args()
+    params = parse_parameters(args)
+
+    # Running information
+    print(HR)
+    print("Hog is running with {} threads, ".format(args.concurrency) +
+          "{} requests ".format(args.requests) +
+          "and timeout in {} second(s).".format(args.timeout))
+    if args.limit != 0:
+        print(">>> Limit: {} request(s) per second.".format(args.limit))
+    print(HR)
+
+    # Let's begin!
+    result = Hog(callback).run(args.url, params, args.method,
+                               int(args.timeout), int(args.concurrency),
+                               int(args.requests), int(args.limit))
+
+    sys.stdout.write("\n")
+    print_result(result)
 
 
 if __name__ == '__main__':
