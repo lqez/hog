@@ -166,8 +166,6 @@ def callback(result):
 
 
 def print_result(result):
-    sys.stdout.write("\n")
-
     # Print out results
     print(HR)
     print("STATUS\tCOUNT\tAVERAGE")
@@ -222,6 +220,7 @@ def main():
                                int(args.timeout), int(args.concurrency),
                                int(args.requests), int(args.limit))
 
+    sys.stdout.write("\n")
     print_result(result)
 
 
