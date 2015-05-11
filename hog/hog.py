@@ -11,6 +11,8 @@ Sending multiple HTTP requests ON GREEN thread.
 """
 
 from __future__ import print_function
+from six import itervalues, iteritems
+from six.moves import xrange
 
 import eventlet
 eventlet.monkey_patch()
@@ -157,7 +159,7 @@ def get_parser():
 
 def callback(result):
     percent = sum([len(_) for _
-                   in result.responses.itervalues()]) * 100 / result.requests
+                   in itervalues(result.responses)]) * 100 / result.requests
     sys.stdout.write("  [{:<70}] {:>3}%\r".format(
         '=' * int(0.7 * percent),
         percent
@@ -171,7 +173,7 @@ def print_result(result):
     print("STATUS\tCOUNT\tAVERAGE")
     print(HR)
 
-    for status, elapsed_times in result.responses.iteritems():
+    for status, elapsed_times in iteritems(result.responses):
         if status <= 0:
             continue
 
@@ -188,7 +190,7 @@ def print_result(result):
         elapsed_sorted = sorted(result.succeed_responses)
         for p in PERCENTAGE:
             c = (len(elapsed_sorted) * p / 100) - 1
-            print("{:>12}%{:>10.2f}ms".format(p, elapsed_sorted[c] * 1000))
+            print("{:>12}%{:>10.2f}ms".format(p, elapsed_sorted[int(c)] * 1000))
 
     # Print errors and summary
     print(HR)

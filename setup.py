@@ -19,6 +19,7 @@ packages = [
 requirements = [
     'eventlet',
     'requests',
+    'six',
 ]
 
 classifiers = [
