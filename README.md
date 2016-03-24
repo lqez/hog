@@ -7,8 +7,10 @@ Sending multiple HTTP requests ON GREEN thread like an [hog](http://en.wikipedia
 Using Hog as console script
 ---------------------------
 
-    usage: hog.py [-h] -u URL [-c CONCURRENCY] [-n REQUESTS] [-t TIMEOUT]
-                  [-p [PARAMS [PARAMS ...]]] [-f PARAMFILE] [-m {GET,POST}]
+    usage: hog [-h] [-c CONCURRENCY] [-n REQUESTS] [-l LIMIT] [-t TIMEOUT]
+               [-p [PARAMS [PARAMS ...]]] [-f PARAMFILE]
+               [-H [HEADERS [HEADERS ...]]] [-F HEADERFILE] [-m {GET,POST}]
+               url
 
     Sending multiple `HTTP` requests `ON` `GREEN` thread
 
@@ -24,6 +26,9 @@ Using Hog as console script
       -p [PARAMS [PARAMS ...]]
                             Parameters (in key=value format)
       -f PARAMFILE          File contains parameters (multiple key=value)
+      -H [HEADERS [HEADERS ...]]
+                            Custom headers (in key=value format)
+      -F HEADERFILE         File contains custom headers (multiple key=value)
       -m {GET,POST}         Which method to be used (GET,POST)
 
 

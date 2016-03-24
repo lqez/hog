@@ -5,7 +5,7 @@ hog
 
 Sending multiple HTTP requests ON GREEN thread.
 
-:copyright: (c) 2014 by Park Hyunwoo.
+:copyright: (c) 2014-2016 by Park Hyunwoo.
 :license: MIT, see LICENSE for more details.
 
 """
@@ -56,11 +56,17 @@ class Hog(object):
         try:
             if self.method == 'GET':
                 r = requests.get(
-                    self.url, params=self.params, timeout=self.timeout
+                    self.url,
+                    params=self.params,
+                    headers=self.headers,
+                    timeout=self.timeout
                 )
             else:
                 r = requests.post(
-                    self.url, data=self.params, timeout=self.timeout
+                    self.url,
+                    data=self.params,
+                    headers=self.headers,
+                    timeout=self.timeout
                 )
 
             status = r.status_code
@@ -78,10 +84,11 @@ class Hog(object):
         if self.callback:
             self.callback(self.result)
 
-    def run(self, url, params=None, method='GET',
+    def run(self, url, params=None, headers=None, method='GET',
             timeout=5, concurrency=10, requests=100, limit=0):
         self.url = url
         self.params = params
+        self.headers = headers
         self.method = method
         self.timeout = timeout
 
@@ -110,26 +117,26 @@ class Hog(object):
         return self.result
 
 
-def run(url, params=None, method='GET',
+def run(url, params=None, headers=None, method='GET',
         timeout=5, concurrency=10, requests=100, limit=0, callback=None):
     return Hog(callback) \
-        .run(url, params, method, timeout, concurrency, requests, limit)
+        .run(url, params, headers, method, timeout, concurrency, requests, limit)
 
 
-def parse_parameters(args):
-    params = {}
+def parse_from_list_and_file(lst, filename):
+    res = {}
 
-    if args.paramfile:
-        with open(args.paramfile, 'r') as fh:
-            args.params += [_.rstrip('\r\n') for _ in fh.readlines()]
+    if filename:
+        with open(filename, 'r') as fh:
+            lst += [_.rstrip('\r\n') for _ in fh.readlines()]
 
-    if args.params:
-        for param in args.params:
+    if lst:
+        for param in lst:
             m = re.match(r'(?P<key>[^=]+)=(?P<value>.+)', param)
             if m:
-                params[m.group('key')] = m.group('value')
+                res[m.group('key')] = m.group('value')
 
-    return params
+    return res
 
 
 def get_parser():
@@ -151,6 +158,10 @@ def get_parser():
                         help='Parameters (in key=value format)')
     parser.add_argument('-f', dest='paramfile',
                         help='File contains parameters (multiple key=value)')
+    parser.add_argument('-H', dest='headers', nargs='*',
+                        help='Custom headers (in key=value format)')
+    parser.add_argument('-F', dest='headerfile',
+                        help='File contains custom headers (multiple key=value)')
     parser.add_argument('-m', dest='method', default='GET',
                         choices=['GET', 'POST'],
                         help='Which method to be used (GET,POST)')
@@ -206,7 +217,8 @@ def print_result(result):
 
 def main():
     args = get_parser().parse_args()
-    params = parse_parameters(args)
+    params = parse_from_list_and_file(args.params, args.paramfile)
+    headers = parse_from_list_and_file(args.headers, args.headerfile)
 
     # Running information
     print(HR)
@@ -218,7 +230,7 @@ def main():
     print(HR)
 
     # Let's begin!
-    result = Hog(callback).run(args.url, params, args.method,
+    result = Hog(callback).run(args.url, params, headers, args.method,
                                int(args.timeout), int(args.concurrency),
                                int(args.requests), int(args.limit))
 
