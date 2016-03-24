@@ -2,6 +2,7 @@ Hog
 ===
 
 Sending multiple HTTP requests ON GREEN thread like an [hog](http://en.wikipedia.org/wiki/Giant_forest_hog).
+Runs on Python 2 / 3.
 
 
 Using Hog as console script
