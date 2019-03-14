@@ -17,6 +17,7 @@ packages = [
 ]
 
 requirements = [
+    'click',
     'eventlet',
     'requests',
     'six',
@@ -54,7 +55,7 @@ setup(
     install_requires=requirements,
     entry_points={
         'console_scripts': [
-            'hog = hog.hog:main',
+            'hog = hog.hog:hog',
         ],
     },
 )
