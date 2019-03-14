@@ -7,30 +7,23 @@ Runs on Python 2 / 3.
 
 Using Hog as console script
 ---------------------------
+```shell
+Usage: hog [OPTIONS] URL
 
-    usage: hog [-h] [-c CONCURRENCY] [-n REQUESTS] [-l LIMIT] [-t TIMEOUT]
-               [-p [PARAMS [PARAMS ...]]] [-f PARAMFILE]
-               [-H [HEADERS [HEADERS ...]]] [-F HEADERFILE] [-m {GET,POST}]
-               url
+  Sending multiple `HTTP` requests `ON` `GREEN` thread
 
-    Sending multiple `HTTP` requests `ON` `GREEN` thread
-
-    positional arguments:
-      url                   URL to be tested
-
-    optional arguments:
-      -h, --help            show this help message and exit
-      -c CONCURRENCY        Number of threads
-      -n REQUESTS           Number of requests
-      -l LIMIT              Limit requests per second (0=unlimited)
-      -t TIMEOUT            Timeout limit in seconds
-      -p [PARAMS [PARAMS ...]]
-                            Parameters (in key=value format)
-      -f PARAMFILE          File contains parameters (multiple key=value)
-      -H [HEADERS [HEADERS ...]]
-                            Custom headers (in key=value format)
-      -F HEADERFILE         File contains custom headers (multiple key=value)
-      -m {GET,POST}         Which method to be used (GET,POST)
+Options:
+  -c, --concurrency INTEGER  Number of threads
+  -n, --requests INTEGER     Number of requests
+  -l, --limit INTEGER        Limit requests per second (0=unlimited)
+  -t, --timeout INTEGER      Timeout limit in seconds
+  -p, --params TEXT          Parameters (in key=value format)
+  -f, --paramfile TEXT       File contains parameters (multiple key=value)
+  -H, --headers TEXT         Custom headers (in key=value format)
+  -F, --headerfile TEXT      File contains custom headers (multiple key=value)
+  -m, --method [GET|POST]    Method to be used (GET,POST)
+  --help                     Show this message and exit.
+```
 
 
 Using Hog via module
