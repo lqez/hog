@@ -5,19 +5,18 @@ hog
 
 Sending multiple HTTP requests ON GREEN thread.
 
-:copyright: (c) 2014-2016 by Park Hyunwoo.
+:copyright: (c) 2014-2019 by Park Hyunwoo.
 :license: MIT, see LICENSE for more details.
 
 """
 
-from __future__ import print_function
 from six import itervalues, iteritems
 from six.moves import xrange
 
 import eventlet
 eventlet.monkey_patch()
 
-import argparse
+import click
 import re
 import requests
 import sys
@@ -139,35 +138,6 @@ def parse_from_list_and_file(lst, filename):
     return res
 
 
-def get_parser():
-    parser = argparse.ArgumentParser(
-        description='Sending multiple `HTTP` requests `ON` `GREEN` thread'
-    )
-
-    parser.add_argument(dest='url',
-                        help='URL to be tested')
-    parser.add_argument('-c', dest='concurrency', default=10,
-                        help='Number of threads')
-    parser.add_argument('-n', dest='requests', default=100,
-                        help='Number of requests')
-    parser.add_argument('-l', dest='limit', type=float, default=0,
-                        help='Limit requests per second (0=unlimited)')
-    parser.add_argument('-t', dest='timeout', type=float, default=5,
-                        help='Timeout limit in seconds')
-    parser.add_argument('-p', dest='params', nargs='*',
-                        help='Parameters (in key=value format)')
-    parser.add_argument('-f', dest='paramfile',
-                        help='File contains parameters (multiple key=value)')
-    parser.add_argument('-H', dest='headers', nargs='*',
-                        help='Custom headers (in key=value format)')
-    parser.add_argument('-F', dest='headerfile',
-                        help='File contains custom headers (multiple key=value)')
-    parser.add_argument('-m', dest='method', default='GET',
-                        choices=['GET', 'POST'],
-                        help='Which method to be used (GET,POST)')
-    return parser
-
-
 def callback(result):
     percent = sum([len(_) for _
                    in itervalues(result.responses)]) * 100 / result.requests
@@ -180,63 +150,75 @@ def callback(result):
 
 def print_result(result):
     # Print out results
-    print(HR)
-    print("STATUS\tCOUNT\tAVERAGE")
-    print(HR)
+    click.echo(HR)
+    click.echo("STATUS\tCOUNT\tAVERAGE")
+    click.echo(HR)
 
     for status, elapsed_times in iteritems(result.responses):
         if status <= 0:
             continue
 
         count = len(elapsed_times)
-        print("{:>6}{:>7}{:>10.2f}ms".format(
+        click.echo("{:>6}{:>7}{:>10.2f}ms".format(
             status, count, sum(elapsed_times) * 1000 / count
         ))
 
     # Print distribution
     if result.succeed_responses:
-        print(HR)
-        print("Response time distribution of succeed requests")
+        click.echo(HR)
+        click.echo("Response time distribution of succeed requests")
 
         elapsed_sorted = sorted(result.succeed_responses)
         for p in PERCENTAGE:
             c = (len(elapsed_sorted) * p / 100) - 1
-            print("{:>12}%{:>10.2f}ms".format(p, elapsed_sorted[int(c)] * 1000))
+            click.echo("{:>12}%{:>10.2f}ms".format(p, elapsed_sorted[int(c)] * 1000))
 
     # Print errors and summary
-    print(HR)
+    click.echo(HR)
 
     if result.responses.get(-1):
-        print(">>> {} request(s) timed out".format(len(result.responses[-1])))
+        click.echo(">>> {} request(s) timed out".format(len(result.responses[-1])))
 
     if result.responses.get(-2):
-        print(">>> {} request(s) failed".format(len(result.responses[-2])))
+        click.echo(">>> {} request(s) failed".format(len(result.responses[-2])))
 
-    print("total time elapsed {:.4f}s".format(result.elapsed))
+    click.echo("total time elapsed {:.4f}s".format(result.elapsed))
 
 
-def main():
-    args = get_parser().parse_args()
-    params = parse_from_list_and_file(args.params, args.paramfile)
-    headers = parse_from_list_and_file(args.headers, args.headerfile)
+
+@click.command()
+@click.option('-c', '--concurrency', type=int, default=10, help='Number of threads')
+@click.option('-n', '--requests', type=int, default=100, help='Number of requests')
+@click.option('-l', '--limit', type=int, default=0, help='Limit requests per second (0=unlimited)')
+@click.option('-t', '--timeout', type=int, default=5, help='Timeout limit in seconds')
+@click.option('-p', '--params', multiple=True, help='Parameters (in key=value format)')
+@click.option('-f', '--paramfile', help='File contains parameters (multiple key=value)')
+@click.option('-H', '--headers', multiple=True, help='Custom headers (in key=value format)')
+@click.option('-F', '--headerfile', help='File contains custom headers (multiple key=value)')
+@click.option('-m', '--method', type=click.Choice(['GET', 'POST']), default='GET', help='Method to be used (GET,POST)')
+@click.argument('url')
+def hog(concurrency, requests, limit, timeout,
+        params, paramfile, headers, headerfile, method, url):
+    '''Sending multiple `HTTP` requests `ON` `GREEN` thread'''
+
+    params = parse_from_list_and_file(params, paramfile)
+    headers = parse_from_list_and_file(headers, headerfile)
 
     # Running information
-    print(HR)
-    print("Hog is running with {} threads, ".format(args.concurrency) +
-          "{} requests ".format(args.requests) +
-          "and timeout in {} second(s).".format(args.timeout))
-    if args.limit != 0:
-        print(">>> Limit: {} request(s) per second.".format(args.limit))
-    print(HR)
+    click.echo(HR)
+    click.echo("Hog is running with {} threads, ".format(concurrency) +
+          "{} requests ".format(requests) +
+          "and timeout in {} second(s).".format(timeout))
+    if limit != 0:
+        click.echo(">>> Limit: {} request(s) per second.".format(limit))
+    click.echo(HR)
 
     # Let's begin!
-    result = Hog(callback).run(args.url, params, headers, args.method,
-                               int(args.timeout), int(args.concurrency),
-                               int(args.requests), int(args.limit))
+    result = Hog(callback).run(url, params, headers, method, timeout, concurrency, requests, limit)
 
     sys.stdout.write("\n")
     print_result(result)
 
 
 if __name__ == '__main__':
-    main()
+    hog()

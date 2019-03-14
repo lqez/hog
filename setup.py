@@ -17,6 +17,7 @@ packages = [
 ]
 
 requirements = [
+    'click',
     'eventlet',
     'requests',
     'six',
